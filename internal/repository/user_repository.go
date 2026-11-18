@@ -11,7 +11,10 @@ import (
 	"github.com/rs/zerolog"
 )
 
-var ErrUserAlreadyExists = errors.New("user already exists")
+var (
+	ErrUserAlreadyExists = errors.New("user already exists")
+	ErrUserNotFound      = errors.New("user not found")
+)
 
 // UserRepository репозиторий модели model.User
 type UserRepository struct {
@@ -36,8 +39,12 @@ func (rep *UserRepository) FindByCredential(ctx context.Context, login, password
 	}
 	err := rep.retryableHelper.Run(ctx, func() error {
 		row := rep.db.QueryRowContext(ctx, "SELECT id, username, password_hash, created_at FROM users WHERE username = $1 AND password_hash = $2", login, passwordHash)
+		err := row.Scan(user.Id, &user.Username, &user.PasswordHash, &user.CreatedAt)
+		if helper.IsNoRows(err) {
+			return ErrUserNotFound
+		}
 
-		return row.Scan(user.Id, &user.Username, &user.PasswordHash, &user.CreatedAt)
+		return err
 	})
 
 	return user, err

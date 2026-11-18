@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -14,4 +15,8 @@ func IsDuplicateError(err error) bool {
 		return pgErr.Code == pgerrcode.UniqueViolation
 	}
 	return false
+}
+
+func IsNoRows(err error) bool {
+	return errors.As(err, &pgx.ErrNoRows)
 }

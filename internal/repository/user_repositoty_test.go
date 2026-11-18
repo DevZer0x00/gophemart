@@ -114,4 +114,7 @@ func TestUserRepositoryFind(t *testing.T) {
 	assert.Equal(t, "test", user.Username)
 	assert.Equal(t, "password", user.PasswordHash)
 	assert.NotEmpty(t, user.CreatedAt)
+
+	user, err = repo.FindByCredential(t.Context(), "test", "password1")
+	assert.ErrorIs(t, ErrUserNotFound, err)
 }
