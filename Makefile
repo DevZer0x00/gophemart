@@ -4,6 +4,9 @@ MIGRATION_NAME := $(word 2, $(MAKECMDGOALS))
 
 .PHONY: migration_up migration_create
 
+gen_mocks:
+	go generate ./...
+
 migration_status:
 	goose postgres $(DATABASE_DSN) -dir ./migrations status
 
